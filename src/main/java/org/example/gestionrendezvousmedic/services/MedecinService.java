@@ -15,11 +15,13 @@ import org.example.gestionrendezvousmedic.repos.RendezVousRepository;
 import org.example.gestionrendezvousmedic.repos.PatientRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.example.gestionrendezvousmedic.Exception.GlobalExceptionHandler;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -145,10 +147,17 @@ private  final MedecinRepository medecinRepository;
     }
 
     @Transactional
-    public void deletePatient(Long medecinId, Long patientId) {
+    public PatientDto deletePatient(Long medecinId, Long patientId) {
         logger.info("Deleting patient {} for medecinId: {}", patientId, medecinId);
+        PatientDto deledpatient = getPatient(medecinId, patientId);
         Patient patient = patientRepository.findByIdAndMedecinId(patientId, medecinId)
                 .orElseThrow(() -> new PatientNotFoundNotadmin("Patient non trouve ou non associé avec vous"));
         patientRepository.delete(patient);
+        return deledpatient;
+    }
+    public PatientDto getPatientDto(Long medecinId, Long patientId) {
+        logger.info("Found Patient:{} for medecinId: {}", patientId, medecinId);
+      Patient patient = patientRepository.findByIdAndMedecinId(patientId, medecinId).orElseThrow(() -> new PatientNotFoundNotadmin("Patient non trouve ou non associé avec vous"));
+      return new PatientDto(patient.getName(),patient.getId() , patient.getEmail());
     }
 }

@@ -1,6 +1,7 @@
 package org.example.gestionrendezvousmedic.Controller;
 
 import org.example.gestionrendezvousmedic.dtos.MedecinDashboardDto;
+import org.example.gestionrendezvousmedic.dtos.PatientDto;
 import org.example.gestionrendezvousmedic.models.Medecin;
 import org.example.gestionrendezvousmedic.repos.MedecinRepository;
 import org.example.gestionrendezvousmedic.services.MedecinService;
@@ -10,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/medecin")
@@ -39,4 +40,53 @@ public class MedecinController {
         MedecinDashboardDto dashboard = medecinService.getDashboardData(medecin.getId());
         return ResponseEntity.ok(dashboard);
     }
+    @PutMapping("/updatePatient/{PatientId}")
+    public ResponseEntity<PatientDto> updatePatient (Authentication authentication,
+        @PathVariable Long PatientId,
+                @RequestBody PatientDto updateDto) {
+        String email = authentication.getName();
+        Medecin medecin = medecinRepository.findByEmail(email).orElseThrow( () -> new RuntimeException("Medecin not found"));
+
+        PatientDto updatedPatient = medecinService.updatePatient(medecin.getId(), PatientId, updateDto);
+        return ResponseEntity.ok(updatedPatient);
+    }
+    @PutMapping("/deletePatient/{PatientId}")
+    public ResponseEntity<PatientDto> deletePatient (@PathVariable Long PatientId,
+    Authentication authentication,
+                                                     @RequestBody PatientDto deleteDto) {
+        String email = authentication.getName();
+        Medecin medecin = medecinRepository.findByEmail(email).orElseThrow( () -> new RuntimeException("Medecin not found"));
+        PatientDto deletedPatient = medecinService.deletePatient(medecin.getId(), PatientId);
+        return ResponseEntity.ok(deletedPatient);
+
+    }
+    @PutMapping("/addPatient/createpatient")
+    public ResponseEntity<PatientDto> CreatePatient(@RequestBody PatientDto addDto, Authentication authentication) {
+        String email = authentication.getName();
+        Medecin medecin = medecinRepository.findByEmail(email).orElseThrow( () -> new RuntimeException("Medecin not found"));
+        PatientDto addedPatient = medecinService.createPatient(medecin.getId(), addDto);
+        return ResponseEntity.ok(addedPatient);
+    }
+    @PutMapping("/patients")
+    public ResponseEntity<List<PatientDto>> GetallPatients(Authentication authentication) {
+        String email = authentication.getName();
+        Medecin medecin = medecinRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Medecin not found"));
+
+        List<PatientDto> patients = medecinService.getAllPatients(medecin.getId());
+        return ResponseEntity.ok(patients);
+    }
+
+    // ✅ Get One Patient
+    @PutMapping("/patients/{patientId}")
+    public ResponseEntity<PatientDto> getPatient(@PathVariable Long patientId, Authentication authentication) {
+        String email = authentication.getName();
+        Medecin medecin = medecinRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Medecin not found"));
+
+        PatientDto patient = medecinService.getPatientById(medecin.getId(), patientId);
+        return ResponseEntity.ok(patient);
+    }
+
 }
+
