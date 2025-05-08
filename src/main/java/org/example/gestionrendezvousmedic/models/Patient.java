@@ -1,19 +1,27 @@
 package org.example.gestionrendezvousmedic.models;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 
 
 public class Patient extends User {
-  //  @OneToMany(mappedBy = "patient")
-//List<Rendezvous> listRendezvous;
+    @ManyToOne
+    @JoinColumn(name = "medecin_id")
+    Medecin medecin;
+  @OneToMany(mappedBy = "patient")
+List<Rendezvous> listRendezvous;
 
     public Patient(List<Rendezvous> listRendezvous) {
-       // this.listRendezvous = listRendezvous;
+        this.listRendezvous = listRendezvous;
     }
 
     public Patient(String name, String email, List<Rendezvous> listRendezvous) {
@@ -24,4 +32,5 @@ public class Patient extends User {
     public Patient() {
 super(Role.PATIENT);
     }
+
 }
