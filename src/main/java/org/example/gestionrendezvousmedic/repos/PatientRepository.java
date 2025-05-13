@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 //import java.lang.ScopedValue;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,4 +17,5 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     int countDistinctByMedecinId(Long medecinId);
 Optional <Patient> findByMedecinId(Long medecinId);
     Optional <Patient>  findByIdAndMedecinId(Long patientId, Long medecinId);
+Optional <List<Patient>> showAllPatients();
 }

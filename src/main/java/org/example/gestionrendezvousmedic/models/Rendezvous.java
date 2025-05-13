@@ -5,13 +5,15 @@ import lombok.Data;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 public class Rendezvous {
     @Id
     Long id;
-    LocalDate date;
-    String status;
+    LocalDateTime date;
+
 
     @ManyToOne
    @JoinColumn(name = "patient_id")  // foreign key column in the rendezvous table
@@ -19,5 +21,8 @@ public class Rendezvous {
     @ManyToOne
     @JoinColumn(name = "medecin_id")  // foreign key column in the rendezvous table
     private Medecin medecin;
+    @Enumerated(EnumType.STRING)
+    @Column(updatable = true, name ="STATUS_")
+    private Status status;
 
 }

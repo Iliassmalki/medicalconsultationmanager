@@ -30,4 +30,28 @@ public class GlobalExceptionHandler {
                 Map.of("error patient not found", ex.getMessage())
         );
   }
+    @ExceptionHandler(Patientaddedalreadytomedecin.class)
+    public ResponseEntity<?> handlePatieantaddedalreadytomedecin(Patientaddedalreadytomedecin ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                Map.of("ce patient est deja assigne avec vous.", ex.getMessage())
+        );
+    }
+@ExceptionHandler (AdminNodoc.class)
+    public ResponseEntity<?> handleAdminNodoc(AdminNodoc ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                Map.of("error admin nodoc", ex.getMessage())
+        );
+
+
+
+
+
+}
+
+    @ExceptionHandler (Adminnopatient.class)
+    public ResponseEntity<?> handleAdminNodoc(Adminnopatient ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                Map.of("error admin nodoc", ex.getMessage()));
+
+    }
 }

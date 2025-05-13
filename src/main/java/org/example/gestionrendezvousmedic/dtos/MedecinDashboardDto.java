@@ -1,23 +1,27 @@
 package org.example.gestionrendezvousmedic.dtos;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.example.gestionrendezvousmedic.dtos.AppointmentSummaryDto;
+import org.example.gestionrendezvousmedic.models.Patient;
 
 import java.util.List;
-
+@Data
+@Getter
+@Setter
+@AllArgsConstructor
 public class MedecinDashboardDto {
 
     private int totalAppointments;
     private int totalPatients;
     private List<AppointmentSummaryDto> recentAppointments;
+    private  List<PatientsummaryDto> listofclients;
 
     // Constructors
     public MedecinDashboardDto() {}
 
-    public MedecinDashboardDto(int totalAppointments, int totalPatients, List<AppointmentSummaryDto> recentAppointments) {
-        this.totalAppointments = totalAppointments;
-        this.totalPatients = totalPatients;
-        this.recentAppointments = recentAppointments;
-    }
 
     // Getters and Setters
     public int getTotalAppointments() {

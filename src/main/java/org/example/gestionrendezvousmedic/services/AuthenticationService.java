@@ -4,6 +4,8 @@ import jakarta.transaction.Transactional;
 import org.example.gestionrendezvousmedic.Exception.EmailAlreadyExistsException;
 import org.example.gestionrendezvousmedic.dtos.AuthenticationResponse;
 import org.example.gestionrendezvousmedic.dtos.LoginUserDto;
+import org.example.gestionrendezvousmedic.dtos.PatientDto;
+
 import org.example.gestionrendezvousmedic.dtos.RegisterUserDto;
 import org.example.gestionrendezvousmedic.models.*;
 import org.example.gestionrendezvousmedic.repos.AdminRepository;
@@ -56,12 +58,14 @@ public class AuthenticationService {
     // ------------------ PATIENT ------------------
     @Transactional
     public AuthenticationResponse signupPatient(RegisterUserDto input) {
+        if(patientRepository.findByEmail(input.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("Email est deja utilisé!");
+        }
         Patient patient = new Patient();
         patient.setName(input.getName());
         patient.setEmail(input.getEmail());
         patient.setPassword(passwordEncoder.encode(input.getPassword()));
         patient.setRole(Role.PATIENT);
-
          patientRepository.save(patient);
         var jwt = jwtService.generateToken(patient);
         return AuthenticationResponse.builder().token(jwt).build();
@@ -90,10 +94,10 @@ public class AuthenticationService {
         logger.info("Medecin before save: email={}, name={}, role={}, specialite={}",
                 medecin.getEmail(), medecin.getName(), medecin.getRole(), medecin.getSpecialite());
         if (medecinRepository.existsByEmail(input.getEmail())) {
-            throw new EmailAlreadyExistsException("Email already in use");
+            throw new EmailAlreadyExistsException("Cet email est deja utilise!");
         }
         Medecin savedMedecin = medecinRepository.save(medecin);
-        logger.info("Saved Medecin: {}", savedMedecin); // extra debug log
+        logger.info(" succesfully!! Saved Medecin: {}", savedMedecin); // extra debug log
 
         String jwtToken = jwtService.generateToken(savedMedecin);
 

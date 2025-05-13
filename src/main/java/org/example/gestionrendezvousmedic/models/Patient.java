@@ -1,9 +1,6 @@
 package org.example.gestionrendezvousmedic.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,9 +11,11 @@ import java.util.List;
 
 
 public class Patient extends User {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medecin_id")
+
     Medecin medecin;
+
   @OneToMany(mappedBy = "patient")
 List<Rendezvous> listRendezvous;
 
@@ -32,5 +31,8 @@ List<Rendezvous> listRendezvous;
     public Patient() {
 super(Role.PATIENT);
     }
-
+    @Override
+    public String toString() {
+        return "Patient{id=" + getId() + ", name='" + getName() + "'}";
+    }
 }

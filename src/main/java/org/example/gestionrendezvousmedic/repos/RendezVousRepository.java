@@ -23,4 +23,6 @@ Optional<Rendezvous> findByIdAndMedecinId(Long id, Long medecinId);
     List<Rendezvous>  findTop5ByMedecinIdOrderByDateDesc(Long medecinId);
     int countRendezvousByMedecinId(Long medecinId);
     Optional<Rendezvous> findByMedecinId(Long medecinId);
+int countRendezVousByPatientId(Long patientId);
+Optional <Rendezvous> findByPatientId(Long patientId);
 }
