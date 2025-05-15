@@ -21,13 +21,12 @@ public class RendezVousDto {
 
     @NotNull(message = "Patient ID is required")
     private Long patientId;
-
+private String reason;
     @NotNull(message = "Date is required")
     @Future(message = "Date must be in the future")
     private LocalDateTime date;
 
     @NotNull(message = "Status is required")
-    @Size(min = 2, max = 30, message = "Status must be between 2 and 30 characters")
     private Status status;
 
     public RendezVousDto() {}

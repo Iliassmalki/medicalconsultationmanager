@@ -17,5 +17,5 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     int countDistinctByMedecinId(Long medecinId);
 Optional <Patient> findByMedecinId(Long medecinId);
     Optional <Patient>  findByIdAndMedecinId(Long patientId, Long medecinId);
-Optional <List<Patient>> showAllPatients();
+
 }

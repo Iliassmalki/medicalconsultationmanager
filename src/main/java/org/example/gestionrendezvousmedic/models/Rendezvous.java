@@ -10,19 +10,28 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 public class Rendezvous {
-    @Id
-    Long id;
-    LocalDateTime date;
 
 
-    @ManyToOne
-   @JoinColumn(name = "patient_id")  // foreign key column in the rendezvous table
-    private Patient patient;
-    @ManyToOne
-    @JoinColumn(name = "medecin_id")  // foreign key column in the rendezvous table
-    private Medecin medecin;
-    @Enumerated(EnumType.STRING)
-    @Column(updatable = true, name ="STATUS_")
-    private Status status;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name = "id")
+        private Long id;
 
-}
+        @Column(nullable = false)
+        private LocalDateTime date;
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "patient_id", nullable = false)
+        private Patient patient;
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "medecin_id", nullable = false)
+        private Medecin medecin;
+
+        @Enumerated(EnumType.STRING)
+        @Column(name = "STATUS_", nullable = false)
+        private Status status;
+
+        private String reason;
+    }
+

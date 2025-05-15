@@ -9,9 +9,10 @@ import java.util.List;
 @AllArgsConstructor
 public class PatientDashboardDto {
     String name;
-    String email;
     String medecinName;
+    String email;
 
-    int nr;
-    List<RendezVousDto> rendezVousDtos;
+
+    int NombreRendezvous;
+    List<RendezVousDto> ListerendezVous;
 }

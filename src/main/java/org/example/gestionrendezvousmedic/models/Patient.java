@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;
+import java.util.Objects;
+
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
@@ -35,4 +37,5 @@ super(Role.PATIENT);
     public String toString() {
         return "Patient{id=" + getId() + ", name='" + getName() + "'}";
     }
+
 }

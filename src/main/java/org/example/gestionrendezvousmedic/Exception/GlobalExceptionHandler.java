@@ -54,4 +54,12 @@ public class GlobalExceptionHandler {
                 Map.of("error admin nodoc", ex.getMessage()));
 
     }
+    @ExceptionHandler (Medecinnotfound.class)
+    public ResponseEntity<?> handleMedecinnotfound(Medecinnotfound ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                Map.of("error medecin not found", ex.getMessage())
+        );
+    }
+
+
 }

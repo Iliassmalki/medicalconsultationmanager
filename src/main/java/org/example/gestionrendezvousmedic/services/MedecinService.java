@@ -1,15 +1,10 @@
 package org.example.gestionrendezvousmedic.services;
 //Create patient .getallpatiens
 import jakarta.transaction.Transactional;
-import org.example.gestionrendezvousmedic.Exception.AppointmentNotfoundNotadmin;
-import org.example.gestionrendezvousmedic.Exception.PatientNotFoundNotadmin;
-import org.example.gestionrendezvousmedic.Exception.Patientaddedalreadytomedecin;
+import org.example.gestionrendezvousmedic.Exception.*;
 import org.example.gestionrendezvousmedic.dtos.*;
 
-import org.example.gestionrendezvousmedic.models.Medecin;
-import org.example.gestionrendezvousmedic.models.Patient;
-import org.example.gestionrendezvousmedic.models.Rendezvous;
-import org.example.gestionrendezvousmedic.models.Role;
+import org.example.gestionrendezvousmedic.models.*;
 import org.example.gestionrendezvousmedic.repos.MedecinRepository;
 import org.example.gestionrendezvousmedic.repos.RendezVousRepository;
 import org.example.gestionrendezvousmedic.repos.PatientRepository;
@@ -18,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.example.gestionrendezvousmedic.Exception.GlobalExceptionHandler;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +41,7 @@ private  final MedecinRepository medecinRepository;
                 .map(app -> new AppointmentSummaryDto(
 
                                 app.getPatient().getName(),
-                        app.getDate().atStartOfDay(),
+                        app.getDate(),
                                 app.getStatus()
                         ))
                 .collect(Collectors.toList());
@@ -57,17 +52,69 @@ private  final MedecinRepository medecinRepository;
     public RendezVousDto getRendezVousData(Long medecinId,Long appointmentId) {
         logger.info("Looking for rendez-vous for medecinId: {} and manages appointmentID {} ", medecinId, appointmentId);
         Rendezvous rendezVous = appointmentRepository.findByIdAndMedecinId(medecinId,appointmentId).orElseThrow(()-> new AppointmentNotfoundNotadmin("Rendez vous non trouve ou non associe avec medecin"+medecinId));
-        return new RendezVousDto(rendezVous.getId(),rendezVous.getMedecin().getId(),rendezVous.getPatient().getId(), rendezVous.getDate().atStartOfDay(),rendezVous.getStatus());
+        return new RendezVousDto(rendezVous.getId(),rendezVous.getMedecin().getId(),rendezVous.getPatient().getId(), rendezVous.getReason(),rendezVous.getDate(),rendezVous.getStatus());
     }
 
+@Transactional
+public RendezVousDto AcceptRendezVous(Long appointmentId,Long medecinId) {
+    logger.info("Looking for rendez-vous for medecinId: {} and manages appointmentID {} ", medecinId, appointmentId);
+    Medecin medecin = medecinRepository.findById(medecinId).orElseThrow(()-> new Medecinnotfound("Medecin non trouve"));
+    Rendezvous rendezVous = appointmentRepository.findById(appointmentId).orElseThrow(()-> new AppointmentNotfoundNotadmin("Rendez-vous non trouve"));
 
+            if (!rendezVous.getMedecin().getId().equals(medecinId)) {
+                throw new AppointmentNotfoundNotadmin("Rendez-vous non trouve ou non associe avec vous");
+            }
+boolean assignpatient=medecin.getPatients().stream().anyMatch(rendezVous.getPatient()::equals);
+            if (!assignpatient) {
+                throw new AppointmentNotfoundNotadmin("Rendez vous avec patient non trouve ou non associe avec vous");
+            }
+
+    if (rendezVous.getStatus() == Status.APPROVED) {
+        logger.warn("Rendezvous already approved: id={}", appointmentId);
+        throw new IllegalStateException("Ce rendez-vous est déjà approuvé");
+    }
+    rendezVous.setStatus(Status.APPROVED);
+
+
+    Rendezvous updated = appointmentRepository.save(rendezVous);
+    return new RendezVousDto(updated.getId(), updated.getMedecin().getId(),
+            updated.getPatient().getId(),updated.getReason(), updated.getDate(), updated.getStatus());
+
+}
+@Transactional
+    public RendezVousDto RejectRendezVous(Long appointmentId,Long medecinId) {
+        logger.info("Looking for rendez-vous for medecinId: {} and manages appointmentID {} ", medecinId, appointmentId);
+    Medecin medecin = medecinRepository.findById(medecinId).orElseThrow(()-> new Medecinnotfound("Medecin non trouve"));
+        Rendezvous rendezVous = appointmentRepository.findById(appointmentId).orElseThrow(()-> new AppointmentNotfoundNotadmin("Rendez-vous non trouve"));
+
+        if (!rendezVous.getMedecin().getId().equals(medecinId)) {
+            throw new AppointmentNotfoundNotadmin("Rendez-vous non trouve ou non associe avec vous");
+        }
+
+    boolean assignpatient=medecin.getPatients().stream().anyMatch(rendezVous.getPatient()::equals);
+    if (!assignpatient) {
+        throw new AppointmentNotfoundNotadmin("Rendez vous avec patient non trouve ou non associe avec vous");
+    }
+        if (rendezVous.getStatus() == Status.REJECTED) {
+            logger.warn("Rendezvous already approved: id={}", appointmentId);
+            throw new IllegalStateException("Ce rendez-vous est déjà rejeté");
+        }
+        rendezVous.setStatus(Status.REJECTED);
+
+
+        Rendezvous updated = appointmentRepository.save(rendezVous);
+        return new RendezVousDto(updated.getId(), updated.getMedecin().getId(),
+                updated.getPatient().getId(),updated.getReason(), updated.getDate(), updated.getStatus());
+
+    }
 
     public List<RendezVousDto> getAllRendezVous(Long medecinId) {
         logger.info("Fetching all rendez-vous for medecinId: {}", medecinId);
         return appointmentRepository.findByMedecinId(medecinId)
                 .stream()
                 .map(r -> new RendezVousDto(r.getId(), r.getMedecin().getId(), r.getPatient().getId(),
-                        r.getDate().atStartOfDay(), r.getStatus()))
+                        r.getReason(),
+                        r.getDate(), r.getStatus()))
                 .collect(Collectors.toList());
     }
     @Transactional
@@ -75,14 +122,14 @@ private  final MedecinRepository medecinRepository;
         logger.info("Updating rendez-vous {} for medecinId: {}", rendezVousId, medecinId);
         Rendezvous rendezVous = appointmentRepository.findByIdAndMedecinId(rendezVousId, medecinId)
                 .orElseThrow(() -> new RuntimeException("Rendez vous non trouve ou non associe avec medecin"+medecinId));
-        rendezVous.setDate(LocalDate.from(dto.getDate()));
+        rendezVous.setDate(dto.getDate());
         rendezVous.setStatus(dto.getStatus());
         Patient patient = patientRepository.findById(dto.getPatientId())
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
         rendezVous.setPatient(patient);
         Rendezvous updated = appointmentRepository.save(rendezVous);
         return new RendezVousDto(updated.getId(), updated.getMedecin().getId(),
-                updated.getPatient().getId(), updated.getDate().atStartOfDay(), updated.getStatus());
+                updated.getPatient().getId(),updated.getReason(), updated.getDate(), updated.getStatus());
     }
 
     @Transactional

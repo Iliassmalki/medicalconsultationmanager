@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface MedecinRepository extends JpaRepository<Medecin, Long> {
     Optional<Medecin> findByEmail(String email);
     boolean existsByEmail(String email);
-    Optional <List <Medecin> >showAllMedecins();
+
  Optional<Medecin> findByName(String name);
 }
